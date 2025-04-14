@@ -2,7 +2,7 @@
   "name": "jabba-manager",
   "displayName": "jabba-manager",
   "description": "Manage Java versions using Jabba with a focus on OpenJDK",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "publisher": "appstecbr",
   "repository": {
     "type": "git",
@@ -186,5 +186,8 @@
     "typescript": "^4.3.2",
     "vscode-test": "^1.5.2"
   },
-  "packageManager": "npm@9.6.4"
+  "packageManager": "npm@9.6.4",
+  "dependencies": {
+    "jabba-manager": "file:"
+  }
 }
