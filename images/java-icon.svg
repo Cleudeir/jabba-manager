@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Coffee cup body -->
+  <path d="M88 42H40V90C40 96.6274 45.3726 102 52 102H76C82.6274 102 88 96.6274 88 90V42Z" fill="#5382A1"/>
+  
+  <!-- Coffee cup steam -->
+  <path d="M67.5 18C60.5 18 57 25 57 29.5C57 34 60.5 38 67.5 38C74.5 38 72 34 72 29.5C72 25 74.5 18 67.5 18Z" fill="#5382A1"/>
+  <path d="M80.5 24C73.5 24 70 31 70 35.5C70 40 73.5 44 80.5 44C87.5 44 85 40 85 35.5C85 31 87.5 24 80.5 24Z" fill="#5382A1"/>
+  
+  <!-- Cup handle -->
+  <path d="M88 55C95.1797 55 101 60.8203 101 68C101 75.1797 95.1797 81 88 81" stroke="#5382A1" stroke-width="8" stroke-linecap="round"/>
+  
+  <!-- J for Java -->
+  <path d="M60 65C60 61.134 63.134 58 67 58H72C75.866 58 79 61.134 79 65V76C79 79.866 75.866 83 72 83H67C63.134 83 60 79.866 60 76V74" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg> 

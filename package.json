@@ -1,0 +1,160 @@
+{
+  "name": "jabba-manager",
+  "displayName": "Java Version Manager",
+  "description": "Manage Java versions using Jabba with a focus on OpenJDK",
+  "version": "0.0.99",
+  "publisher": "appstecbr",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ullian/jabba-manager"
+  },
+  "icon": "images/java-icon.png",
+  "engines": {
+    "vscode": "^1.60.0",
+    "node": ">=14.0.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Other"
+  ],
+  "keywords": [
+    "java",
+    "openjdk",
+    "jabba",
+    "version manager"
+  ],
+  "activationEvents": [
+    "onStartupFinished",
+    "onView:jabbaManagerView"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "jabba-explorer",
+          "title": "",
+          "icon": "images/java-icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "jabba-explorer": [
+        {
+          "id": "jabbaManagerView",
+          "name": "",
+          "icon": "images/java-icon.svg",
+          "contextualTitle": "",
+          "type": "tree"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "jabba-manager.installOpenJDK",
+        "title": "Add Java Version",
+        "icon": {
+          "light": "images/commands/light/install.svg",
+          "dark": "images/commands/dark/install.svg"
+        }
+      },
+      {
+        "command": "jabba-manager.switchJavaVersion",
+        "title": "Switch Java Version",
+        "icon": {
+          "light": "images/commands/light/switch.svg",
+          "dark": "images/commands/dark/switch.svg"
+        }
+      },
+      {
+        "command": "jabba-manager.setGlobalVersion",
+        "title": "Set Global Default",
+        "icon": {
+          "light": "images/commands/light/global.svg",
+          "dark": "images/commands/dark/global.svg"
+        }
+      },
+      {
+        "command": "jabba-manager.uninstallVersion",
+        "title": "Remove Java Version",
+        "icon": {
+          "light": "images/commands/light/uninstall.svg",
+          "dark": "images/commands/dark/uninstall.svg"
+        }
+      },
+      {
+        "command": "jabba-manager.refreshVersions",
+        "title": "Refresh Versions",
+        "icon": {
+          "light": "images/commands/light/refresh.svg",
+          "dark": "images/commands/dark/refresh.svg"
+        }
+      }
+    ],
+    "menus": {
+      "commandPalette": [],
+      "view/item/context": [
+        {
+          "command": "jabba-manager.setGlobalVersion",
+          "when": "viewItem == javaVersion",
+          "group": "inline"
+        },
+        {
+          "command": "jabba-manager.uninstallVersion",
+          "when": "viewItem == javaVersion",
+          "group": "inline"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Jabba Manager",
+      "properties": {
+        "jabbaManager.defaultOpenJDKVersion": {
+          "type": "string",
+          "default": "openjdk@1.17.0",
+          "description": "Default OpenJDK version to use"
+        },
+        "jabbaManager.showVersionDetails": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show detailed version information in the tree view"
+        },
+        "jabbaManager.autoRecommend": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically recommend Java version when project files change"
+        },
+        "jabbaManager.recommendOnCompile": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show Java version recommendations when compiling the project"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "node scripts/update-version.js && tsc -p ./ && node scripts/convert-all-icons.js",
+    "package": "npx @vscode/vsce package",
+    "build": "npm run compile && npm run package",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/glob": "^7.1.3",
+    "@types/mocha": "^8.2.2",
+    "@types/node": "14.x",
+    "@types/vscode": "^1.60.0",
+    "@typescript-eslint/eslint-plugin": "^4.26.0",
+    "@typescript-eslint/parser": "^4.26.0",
+    "@vscode/vsce": "^2.24.0",
+    "eslint": "^7.27.0",
+    "glob": "^7.1.7",
+    "mocha": "^8.4.0",
+    "sharp": "^0.34.1",
+    "typescript": "^4.3.2",
+    "vscode-test": "^1.5.2"
+  },
+  "packageManager": "npm@9.6.4"
+}
