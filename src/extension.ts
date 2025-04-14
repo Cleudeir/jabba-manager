@@ -611,7 +611,11 @@ export async function activate(context: vscode.ExtensionContext) {
                     quickPick.items = availableVersions.map(version => ({
                         label: version.label,
                         description: version.description,
-                        jabbaVersion: version.jabbaVersion
+                        jabbaVersion: version.jabbaVersion,
+                        iconPath: {
+                            light: vscode.Uri.file(path.join(context.extensionPath, 'images', 'commands', 'light', 'install.svg')),
+                            dark: vscode.Uri.file(path.join(context.extensionPath, 'images', 'commands', 'dark', 'install.svg'))
+                        }
                     }));
                     
                     quickPick.onDidChangeSelection(async selection => {
@@ -668,7 +672,11 @@ export async function activate(context: vscode.ExtensionContext) {
                 const versionInfo = parseVersion(version);
                 return {
                     label: version,
-                    description: `${versionInfo.vendor === 'openjdk' ? 'OpenJDK' : versionInfo.vendor} ${versionInfo.majorVersion}.${versionInfo.minorVersion}.${versionInfo.patchVersion}`
+                    description: `${versionInfo.vendor === 'openjdk' ? 'OpenJDK' : versionInfo.vendor} ${versionInfo.majorVersion}.${versionInfo.minorVersion}.${versionInfo.patchVersion}`,
+                    iconPath: {
+                        light: vscode.Uri.file(path.join(context.extensionPath, 'images', 'commands', 'light', 'switch.svg')),
+                        dark: vscode.Uri.file(path.join(context.extensionPath, 'images', 'commands', 'dark', 'switch.svg'))
+                    }
                 };
             });
 

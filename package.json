@@ -2,7 +2,7 @@
   "name": "jabba-manager",
   "displayName": "jabba-manager",
   "description": "Manage Java versions using Jabba with a focus on OpenJDK",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "publisher": "Cleudeir",
   "repository": {
     "type": "git",
@@ -101,6 +101,23 @@
     ],
     "menus": {
       "commandPalette": [],
+      "view/title": [
+        {
+          "command": "jabba-manager.installOpenJDK",
+          "when": "view == jabbaManagerView",
+          "group": "navigation"
+        },
+        {
+          "command": "jabba-manager.switchJavaVersion",
+          "when": "view == jabbaManagerView",
+          "group": "navigation"
+        },
+        {
+          "command": "jabba-manager.refreshVersions",
+          "when": "view == jabbaManagerView",
+          "group": "navigation"
+        }
+      ],
       "view/item/context": [
         {
           "command": "jabba-manager.setGlobalVersion",
