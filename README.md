@@ -1,10 +1,10 @@
-A VSCode extension for managing Java versions using Jabba, with a focus on OpenJDK management.
+A VSCode extension for managing Java versions using Jabba, supporting all Java distributions that Jabba supports.
 
 ![Jabba Manager](images/java-icon.png)
 
 ## Features
 
-- Install OpenJDK versions directly from VSCode
+- Install any Java version supported by Jabba directly from VSCode
 - Switch between installed Java versions with a single click
 - Manage (use/uninstall) Java versions through an intuitive interface
 - Quick access to common Jabba commands
@@ -51,12 +51,12 @@ curl -sL https://github.com/shyiko/jabba/raw/master/install.sh | bash && . ~/.ja
 The extension provides the following commands through the Command Palette (Ctrl+Shift+P or Cmd+Shift+P):
 
 - `Jabba: Manage Java Versions` - View and manage installed Java versions
-- `Jabba: Install OpenJDK Version` - Install a new OpenJDK version
+- `Jabba: Install Java Version` - Install any Java version supported by Jabba
 - `Jabba: Switch Java Version` - Quickly switch between installed Java versions
 
 ### Basic Workflow
 1. Install Jabba (if not already installed)
-2. Install Java versions using the `Jabba: Install OpenJDK Version` command
+2. Install Java versions using the `Jabba: Install Java Version` command
 3. Switch between Java versions using the `Jabba: Switch Java Version` command
 4. Manage installed versions using the `Jabba: Manage Java Versions` command
 
@@ -66,19 +66,22 @@ You can configure the extension in your VSCode settings:
 
 ```json
 {
-    "jabbaManager.defaultOpenJDKVersion": "openjdk@1.17.0",
+    "jabbaManager.defaultJavaVersion": "openjdk@1.17.0",
     "jabbaManager.showStatusBarItem": true,
     "jabbaManager.checkForUpdates": true
 }
 ```
 
-## Supported OpenJDK Versions
+## Supported Java Versions
 
-This extension supports all OpenJDK versions available through Jabba. Some common versions include:
-- OpenJDK 8
-- OpenJDK 11
-- OpenJDK 17
-- OpenJDK 21
+This extension supports all Java distributions and versions available through Jabba, including:
+- OpenJDK (8, 11, 17, 21, etc.)
+- Eclipse Temurin
+- GraalVM
+- Amazon Corretto
+- Zulu
+- AdoptOpenJDK
+- Many others supported by Jabba
 
 ## Troubleshooting
 
