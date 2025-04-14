@@ -12,8 +12,6 @@
 - 📦 Install new Java versions
 - 🌍 Set global default Java version
 - 📁 Set local Java version per workspace
-- 🔄 Automatic version recommendations based on project configuration
-- 🎯 Support for OpenJDK and other Java distributions
 
 ## Prerequisites
 
@@ -50,10 +48,8 @@ The extension adds a new activity bar icon (Java icon) that opens the Jabba Mana
 
 The extension can be configured through VS Code settings:
 
-- `jabbaManager.defaultOpenJDKVersion`: Default OpenJDK version to use
+- `jabbaManager.defaultJavaVersion`: Default Java version to use
 - `jabbaManager.showVersionDetails`: Show detailed version information in the tree view
-- `jabbaManager.autoRecommend`: Automatically recommend Java version when project files change
-- `jabbaManager.recommendOnCompile`: Show Java version recommendations when compiling the project
 
 ## About Jabba
 

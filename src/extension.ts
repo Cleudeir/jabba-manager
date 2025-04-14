@@ -510,7 +510,7 @@ async function getAvailableJavaVersions(): Promise<{ label: string; description:
     }
 }
 
-async function setLocalVersion(version: string): Promise<void> {
+async function setLocalJavaVersion(version: string): Promise<void> {
     try {
         const workspaceFolders = vscode.workspace.workspaceFolders;
         if (!workspaceFolders || workspaceFolders.length === 0) {
@@ -708,7 +708,14 @@ export async function activate(context: vscode.ExtensionContext) {
             vscode.window.showInformationMessage(`Set global Java version to: ${item.version}`);
             javaVersionProvider.refresh();
         } catch (error) {
-            vscode.window.showErrorMessage('Error setting global Java version: ' + error);
+            vscode.window.showErrorMessage(`Failed to set global version: ${error}`);
+        }
+    });
+
+    let setLocalVersion = vscode.commands.registerCommand('jabba-manager.setLocalVersion', async (item: JavaVersionTreeItem) => {
+        if (item) {
+            await setLocalJavaVersion(item.version);
+            javaVersionProvider.refresh();
         }
     });
 
@@ -732,14 +739,6 @@ export async function activate(context: vscode.ExtensionContext) {
         }
     });
 
-    // Register setLocalVersion command
-    let setLocalVersionDisposable = vscode.commands.registerCommand('jabba-manager.setLocalVersion', async (item: JavaVersionTreeItem) => {
-        if (item) {
-            await setLocalVersion(item.version);
-            javaVersionProvider.refresh();
-        }
-    });
-
     context.subscriptions.push(
         watcher,
         recommendVersion,
@@ -748,7 +747,7 @@ export async function activate(context: vscode.ExtensionContext) {
         switchJavaVersion,
         setGlobalVersion,
         uninstallVersion,
-        setLocalVersionDisposable
+        setLocalVersion
     );
 }
 
