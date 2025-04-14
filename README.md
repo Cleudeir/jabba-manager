@@ -1,6 +1,6 @@
 A VSCode extension for managing Java versions using Jabba, with a focus on OpenJDK management.
 
-![Jabba Manager](images/jabba-manager-logo.png)
+![Jabba Manager](images/java-icon.png)
 
 ## Features
 
