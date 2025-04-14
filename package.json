@@ -1,9 +1,9 @@
 {
   "name": "jabba-manager",
   "displayName": "jabba-manager",
-  "description": "Manage Java versions using Jabba with a focus on OpenJDK",
-  "version": "1.0.1",
-  "publisher": "Cleudeir",
+  "description": "Manage Java versions using Jabba",
+  "version": "1.0.3",
+  "publisher": "appstecbr",
   "repository": {
     "type": "git",
     "url": "https://github.com/ullian/jabba-manager"
