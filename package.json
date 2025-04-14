@@ -1,9 +1,9 @@
 {
   "name": "jabba-manager",
-  "displayName": "Java Version Manager",
+  "displayName": "jabba-manager",
   "description": "Manage Java versions using Jabba with a focus on OpenJDK",
-  "version": "0.0.100",
-  "publisher": "appstecbr",
+  "version": "1.0.1",
+  "publisher": "Cleudeir",
   "repository": {
     "type": "git",
     "url": "https://github.com/ullian/jabba-manager"
@@ -67,6 +67,14 @@
         }
       },
       {
+        "command": "jabba-manager.setLocalVersion",
+        "title": "Set Local Version",
+        "icon": {
+          "light": "images/commands/light/local.svg",
+          "dark": "images/commands/dark/local.svg"
+        }
+      },
+      {
         "command": "jabba-manager.setGlobalVersion",
         "title": "Set Global Default",
         "icon": {
@@ -96,6 +104,11 @@
       "view/item/context": [
         {
           "command": "jabba-manager.setGlobalVersion",
+          "when": "viewItem == javaVersion",
+          "group": "inline"
+        },
+        {
+          "command": "jabba-manager.setLocalVersion",
           "when": "viewItem == javaVersion",
           "group": "inline"
         },

@@ -510,6 +510,30 @@ async function getAvailableJavaVersions(): Promise<{ label: string; description:
     }
 }
 
+async function setLocalVersion(version: string): Promise<void> {
+    try {
+        const workspaceFolders = vscode.workspace.workspaceFolders;
+        if (!workspaceFolders || workspaceFolders.length === 0) {
+            vscode.window.showErrorMessage('No workspace folder is open');
+            return;
+        }
+
+        const workspaceRoot = workspaceFolders[0].uri.fsPath;
+        const jabbaCommand = `jabba use ${version}`;
+        
+        // Execute jabba use command
+        await execAsync(jabbaCommand, { cwd: workspaceRoot });
+        
+        // Create or update .jabbarc file in the workspace root
+        const jabbarcPath = path.join(workspaceRoot, '.jabbarc');
+        await fs.promises.writeFile(jabbarcPath, version);
+        
+        vscode.window.showInformationMessage(`Local Java version set to ${version}`);
+    } catch (error) {
+        vscode.window.showErrorMessage(`Failed to set local Java version: ${error}`);
+    }
+}
+
 export async function activate(context: vscode.ExtensionContext) {
     // Check Jabba installation first
     const isJabbaInstalled = await checkJabbaInstallation();
@@ -700,6 +724,14 @@ export async function activate(context: vscode.ExtensionContext) {
         }
     });
 
+    // Register setLocalVersion command
+    let setLocalVersionDisposable = vscode.commands.registerCommand('jabba-manager.setLocalVersion', async (item: JavaVersionTreeItem) => {
+        if (item) {
+            await setLocalVersion(item.version);
+            javaVersionProvider.refresh();
+        }
+    });
+
     context.subscriptions.push(
         watcher,
         recommendVersion,
@@ -707,7 +739,8 @@ export async function activate(context: vscode.ExtensionContext) {
         installOpenJDK,
         switchJavaVersion,
         setGlobalVersion,
-        uninstallVersion
+        uninstallVersion,
+        setLocalVersionDisposable
     );
 }
 

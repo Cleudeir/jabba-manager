@@ -1,110 +1,84 @@
-A VSCode extension for managing Java versions using Jabba, supporting all Java distributions that Jabba supports.
+# Jabba Manager for VS Code
 
-![Jabba Manager](images/java-icon.png)
+[![Version](https://img.shields.io/visual-studio-marketplace/v/Cleudeir.jabba-manager.svg)](https://marketplace.visualstudio.com/items?itemName=Cleudeir.jabba-manager)
+[![Downloads](https://img.shields.io/visual-studio-marketplace/d/Cleudeir.jabba-manager.svg)](https://marketplace.visualstudio.com/items?itemName=Cleudeir.jabba-manager)
+
+> **Note**: This is an unofficial VS Code extension for [Jabba](https://github.com/shyiko/jabba), a cross-platform Java Version Manager.
 
 ## Features
 
-- Install any Java version supported by Jabba directly from VSCode
-- Switch between installed Java versions with a single click
-- Manage (use/uninstall) Java versions through an intuitive interface
-- Quick access to common Jabba commands
-- Automatic detection of project Java requirements
+- 🔍 View installed Java versions
+- ⚡ Quick switching between Java versions
+- 📦 Install new Java versions
+- 🌍 Set global default Java version
+- 📁 Set local Java version per workspace
+- 🔄 Automatic version recommendations based on project configuration
+- 🎯 Support for OpenJDK and other Java distributions
 
 ## Prerequisites
 
-Before using this extension, you need to install Jabba:
-
-### Installing Jabba
-
-#### Windows
-```powershell
-[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-Invoke-Expression (
-  Invoke-WebRequest https://github.com/shyiko/jabba/raw/master/install.ps1 -UseBasicParsing
-).Content
-```
-
-#### macOS / Linux
-```bash
-curl -sL https://github.com/shyiko/jabba/raw/master/install.sh | bash && . ~/.jabba/jabba.sh
-```
-
-**Note:** After installing Jabba, restart your computer or at least your VS Code instance to ensure the `jabba` command is available in the system PATH.
+- [Jabba](https://github.com/shyiko/jabba) must be installed on your system
+- VS Code version 1.60.0 or higher
 
 ## Installation
 
-### From Visual Studio Code Marketplace
-1. Open VSCode
-2. Go to Extensions (Ctrl+Shift+X or Cmd+Shift+X)
-3. Search for "Jabba Manager"
-4. Click "Install"
-
-### From Source
-1. Clone this repository
-2. Run `npm install` to install dependencies
-3. Run `npm run compile` to build the extension
-4. Press F5 to start debugging the extension
+1. Install Jabba following the [official instructions](https://github.com/shyiko/jabba#installation)
+2. Install this extension from the VS Code Marketplace
+3. Restart VS Code
 
 ## Usage
 
-### Available Commands
-The extension provides the following commands through the Command Palette (Ctrl+Shift+P or Cmd+Shift+P):
+The extension adds a new activity bar icon (Java icon) that opens the Jabba Manager view. From there you can:
 
-- `Jabba: Manage Java Versions` - View and manage installed Java versions
-- `Jabba: Install Java Version` - Install any Java version supported by Jabba
-- `Jabba: Switch Java Version` - Quickly switch between installed Java versions
+- View all installed Java versions
+- Install new versions
+- Switch between versions
+- Set global default version
+- Set local version for the current workspace
+- Uninstall versions
 
-### Basic Workflow
-1. Install Jabba (if not already installed)
-2. Install Java versions using the `Jabba: Install Java Version` command
-3. Switch between Java versions using the `Jabba: Switch Java Version` command
-4. Manage installed versions using the `Jabba: Manage Java Versions` command
+### Commands
+
+- `Add Java Version`: Install a new Java version
+- `Switch Java Version`: Change the current Java version
+- `Set Global Default`: Set the default Java version for all projects
+- `Set Local Version`: Set Java version for the current workspace
+- `Remove Java Version`: Uninstall a Java version
+- `Refresh Versions`: Update the list of installed versions
 
 ## Configuration
 
-You can configure the extension in your VSCode settings:
+The extension can be configured through VS Code settings:
 
-```json
-{
-    "jabbaManager.defaultJavaVersion": "openjdk@1.17.0",
-    "jabbaManager.showStatusBarItem": true,
-    "jabbaManager.checkForUpdates": true
-}
-```
+- `jabbaManager.defaultOpenJDKVersion`: Default OpenJDK version to use
+- `jabbaManager.showVersionDetails`: Show detailed version information in the tree view
+- `jabbaManager.autoRecommend`: Automatically recommend Java version when project files change
+- `jabbaManager.recommendOnCompile`: Show Java version recommendations when compiling the project
 
-## Supported Java Versions
+## About Jabba
 
-This extension supports all Java distributions and versions available through Jabba, including:
-- OpenJDK (8, 11, 17, 21, etc.)
-- Eclipse Temurin
-- GraalVM
+This extension is built on top of [Jabba](https://github.com/shyiko/jabba), a cross-platform Java Version Manager inspired by nvm (Node.js). Jabba provides a unified experience for installing and switching between different versions of JDK across different operating systems.
+
+### Supported Java Distributions
+
+- OpenJDK
+- Oracle JDK
+- Oracle Server JRE
+- Adopt OpenJDK (Hotspot & Eclipse OpenJ9)
+- Zulu OpenJDK
+- IBM SDK
+- GraalVM CE
+- Liberica JDK
 - Amazon Corretto
-- Zulu
-- AdoptOpenJDK
-- Many others supported by Jabba
-
-## Troubleshooting
-
-### Common Issues
-
-#### Jabba command not found
-Ensure Jabba is properly installed and your terminal session has been restarted.
-
-#### Cannot switch Java version
-Make sure the version is installed. Run `jabba ls` in your terminal to list installed versions.
 
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
 ## License
 
-MIT
+This extension is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
-This project is licensed under the MIT License - a permissive license that allows anyone to use, modify, distribute, and sell this software, provided that the original copyright notice and permission notice are included in all copies or substantial portions of the software. It also comes with no warranty or liability for the authors.
+## Disclaimer
+
+This is an unofficial extension and is not affiliated with or endorsed by the Jabba project. All trademarks and registered trademarks are the property of their respective owners.
