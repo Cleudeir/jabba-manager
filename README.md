@@ -1,8 +1,5 @@
 # Jabba Manager for VS Code
 
-[![Version](https://img.shields.io/visual-studio-marketplace/v/Cleudeir.jabba-manager.svg)](https://marketplace.visualstudio.com/items?itemName=Cleudeir.jabba-manager)
-[![Downloads](https://img.shields.io/visual-studio-marketplace/d/Cleudeir.jabba-manager.svg)](https://marketplace.visualstudio.com/items?itemName=Cleudeir.jabba-manager)
-
 > **Note**: This is an unofficial VS Code extension for [Jabba](https://github.com/shyiko/jabba), a cross-platform Java Version Manager.
 
 ## Features
