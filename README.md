@@ -12,8 +12,6 @@
 - 📦 Install new Java versions
 - 🌍 Set global default Java version
 - 📁 Set local Java version per workspace
-- 🔄 Automatic version recommendations based on project configuration
-- 🎯 Support for OpenJDK and other Java distributions
 
 ## Prerequisites
 
