@@ -28,19 +28,23 @@
 
 The extension adds a new activity bar icon (Java icon) that opens the Jabba Manager view. From there you can:
 
-- View all installed Java versions
-- Install new versions
-- Switch between versions
-- Set global default version
-- Set local version for the current workspace
-- Uninstall versions
+- View all installed Java versions.
+  - The version currently set as the local default for the workspace (via `.jabbarc`) will be marked with a folder icon (`$(folder)`).
+  - The version set as the global default is marked with a '✓'.
+- **Click on any version** in the list to set it as the local version for the current workspace (this will create or update the `.jabbarc` file in your workspace root).
+- Use the context menu (right-click) on a version for more actions:
+  - Set as Global Default
+  - Uninstall Version
+- Use the buttons in the view's title bar:
+  - `Add Java Version`: Install a new Java version.
+  - `Switch Java Version`: Change the current global Java version (using `jabba use`).
+  - `Refresh Versions`: Update the list of installed versions.
 
 ### Commands
 
 - `Add Java Version`: Install a new Java version
 - `Switch Java Version`: Change the current Java version
 - `Set Global Default`: Set the default Java version for all projects
-- `Set Local Version`: Set Java version for the current workspace
 - `Remove Java Version`: Uninstall a Java version
 - `Refresh Versions`: Update the list of installed versions
 

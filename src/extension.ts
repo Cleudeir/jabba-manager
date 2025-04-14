@@ -78,14 +78,28 @@ class JavaVersionTreeItem extends vscode.TreeItem {
         this.tooltip.appendMarkdown(`Full Version: ${versionInfo.majorVersion}.${versionInfo.minorVersion}.${versionInfo.patchVersion}\n`);
         if (versionInfo.buildNumber) this.tooltip.appendMarkdown(`Build: ${versionInfo.buildNumber}\n`);
         if (versionInfo.isLTS) this.tooltip.appendMarkdown(`✓ LTS Version\n`);
-        if (isGlobal) this.tooltip.appendMarkdown('✓ Global Version\n');
-        if (isLocal) this.tooltip.appendMarkdown('📁 Local Version\n');
+        if (isGlobal) this.tooltip.appendMarkdown('✓ Global Version\\n');
+        if (isLocal) this.tooltip.appendMarkdown('📁 Local Version\\n');
         
         // Set icon based on status (simplified)
         const extensionPath = vscode.extensions.getExtension('appstecbr.jabba-manager-all')?.extensionPath || '';
-        this.iconPath = {
-            light: vscode.Uri.file(path.join(extensionPath, 'images', 'java-version.svg')),
-            dark: vscode.Uri.file(path.join(extensionPath, 'images', 'java-version.svg'))
+        if (isLocal) {
+            this.iconPath = {
+                light: vscode.Uri.file(path.join(extensionPath, 'images', 'commands', 'light', 'local.svg')),
+                dark: vscode.Uri.file(path.join(extensionPath, 'images', 'commands', 'dark', 'local.svg'))
+            };
+        } else {
+            this.iconPath = {
+                light: vscode.Uri.file(path.join(extensionPath, 'images', 'commands', 'light', 'java-version.svg')),
+                dark: vscode.Uri.file(path.join(extensionPath, 'images', 'commands', 'dark', 'java-version.svg'))
+            };
+        }
+
+        // Add command to set local version when item is clicked
+        this.command = {
+            command: 'jabbaManager.setLocalVersion',
+            title: 'Set Local Version',
+            arguments: [this]
         };
     }
 }
