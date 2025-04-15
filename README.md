@@ -37,7 +37,15 @@ The extension adds a new activity bar icon (Java icon) that opens the Jabba Mana
   - `Switch Java Version`: Change the current global Java version (using `jabba use`).
   - `Refresh Versions`: Update the list of installed versions.
 
-### Commands
+## How it Works
+
+This extension interacts with your existing Jabba installation to manage Java versions within the VS Code environment. Here's a brief overview:
+
+- **Leverages Jabba CLI:** The core functionality relies on executing `jabba` commands (like `jabba ls`, `jabba install`, `jabba use`, `jabba uninstall`) in a terminal process managed by VS Code. You won't see the terminal directly, but the extension uses it to list, install, switch, and remove JDKs.
+- **Workspace Configuration (`.jabbarc`):** When you set a Java version for a specific workspace (by clicking on it in the Jabba Manager view), the extension creates or modifies a `.jabbarc` file in the root of your workspace. This file simply contains the name of the Jabba-managed JDK to use for that project, allowing Jabba to automatically select the correct version when you work within that folder.
+- **Global Configuration:** Actions like "Set as Global Default" modify Jabba's global configuration, affecting which Java version is used by default outside of workspaces with a specific `.jabbarc` file.
+
+## Commands
 
 - `Add Java Version`: Install a new Java version
 - `Switch Java Version`: Change the current Java version
