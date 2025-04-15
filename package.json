@@ -2,7 +2,7 @@
   "name": "jabba-manager",
   "displayName": "jabba-manager",
   "description": "Manage Java versions using Jabba with a focus on OpenJDK",
-  "version": "1.0.31",
+  "version": "1.0.33",
   "publisher": "appstecbr",
   "repository": {
     "type": "git",

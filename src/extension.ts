@@ -97,7 +97,7 @@ class JavaVersionTreeItem extends vscode.TreeItem {
 
         // Add command to set local version when item is clicked
         this.command = {
-            command: 'jabbaManager.setLocalVersion',
+            command: 'jabba-manager.setLocalVersion',
             title: 'Set Local Version',
             arguments: [this]
         };
@@ -533,18 +533,60 @@ async function setLocalJavaVersion(version: string): Promise<void> {
         }
 
         const workspaceRoot = workspaceFolders[0].uri.fsPath;
-        const jabbaCommand = `jabba use ${version}`;
         
-        // Execute jabba use command
-        await execAsync(jabbaCommand, { cwd: workspaceRoot });
-        
-        // Create or update .jabbarc file in the workspace root
+        // First update .jabbarc file in the workspace root
         const jabbarcPath = path.join(workspaceRoot, '.jabbarc');
         await fs.promises.writeFile(jabbarcPath, version);
         
-        vscode.window.showInformationMessage(`Local Java version set to ${version}`);
+        // Execute jabba use command to set local version
+        await execAsync(`jabba use ${version}`, { cwd: workspaceRoot });
+        
+        // Also set as global default using jabba alias
+        await execAsync(`jabba alias default ${version}`);
+        
+        vscode.window.showInformationMessage(`Local and global Java version set to ${version} and .jabbarc updated.`);
     } catch (error) {
-        vscode.window.showErrorMessage(`Failed to set local Java version: ${error}`);
+        vscode.window.showErrorMessage(`Failed to set Java version: ${error}`);
+    }
+}
+
+/**
+ * Read the version from .jabbarc file and apply it
+ */
+async function readAndApplyJabbarcVersion(): Promise<void> {
+    try {
+        const workspaceFolders = vscode.workspace.workspaceFolders;
+        if (!workspaceFolders || workspaceFolders.length === 0) {
+            return;
+        }
+
+        const workspaceRoot = workspaceFolders[0].uri.fsPath;
+        const jabbarcPath = path.join(workspaceRoot, '.jabbarc');
+        
+        // Check if .jabbarc exists
+        if (!fs.existsSync(jabbarcPath)) {
+            return;
+        }
+        
+        // Read the version from .jabbarc
+        const jabbarcContent = await fs.promises.readFile(jabbarcPath, 'utf8');
+        const version = jabbarcContent.trim();
+        
+        if (!version) {
+            return;
+        }
+        
+        console.log(`Found Java version in .jabbarc: ${version}, applying...`);
+        
+        // Execute jabba use command to set local version
+        await execAsync(`jabba use ${version}`, { cwd: workspaceRoot });
+        
+        // Also set as global default using jabba alias
+        await execAsync(`jabba alias default ${version}`);
+        
+        vscode.window.showInformationMessage(`Java version set to ${version} from .jabbarc file.`);
+    } catch (error) {
+        console.error('Error reading or applying .jabbarc version:', error);
     }
 }
 
@@ -555,17 +597,34 @@ export async function activate(context: vscode.ExtensionContext) {
         return;
     }
 
+    // Apply version from .jabbarc file if it exists on startup
+    await readAndApplyJabbarcVersion();
+    
     const javaVersionProvider = new JavaVersionProvider();
     vscode.window.registerTreeDataProvider('jabbaManagerView', javaVersionProvider);
 
-    // File watcher for project files
-    const watcher = vscode.workspace.createFileSystemWatcher('**/{pom.xml,build.gradle,build.gradle.kts}');
-    watcher.onDidChange(async () => {
-        const config = vscode.workspace.getConfiguration('jabbaManager');
-        if (config.get<boolean>('autoRecommend', true)) {
-            const projectInfo = await analyzeProject();
-            const recommendedVersion = await recommendJavaVersion(projectInfo);
-            javaVersionProvider.setRecommendedVersion(recommendedVersion);
+    // File watcher for project files and .jabbarc file
+    const watcher = vscode.workspace.createFileSystemWatcher('**/{pom.xml,build.gradle,build.gradle.kts,.jabbarc}');
+    watcher.onDidChange(async (uri) => {
+        if (uri.fsPath.endsWith('.jabbarc')) {
+            // If .jabbarc changed, read and apply the version
+            await readAndApplyJabbarcVersion();
+            javaVersionProvider.refresh();
+        } else {
+            const config = vscode.workspace.getConfiguration('jabbaManager');
+            if (config.get<boolean>('autoRecommend', true)) {
+                const projectInfo = await analyzeProject();
+                const recommendedVersion = await recommendJavaVersion(projectInfo);
+                javaVersionProvider.setRecommendedVersion(recommendedVersion);
+            }
+        }
+    });
+
+    // Also watch for creation of .jabbarc file
+    watcher.onDidCreate(async (uri) => {
+        if (uri.fsPath.endsWith('.jabbarc')) {
+            await readAndApplyJabbarcVersion();
+            javaVersionProvider.refresh();
         }
     });
 
@@ -701,8 +760,29 @@ export async function activate(context: vscode.ExtensionContext) {
                 quickPick.hide();
                 try {
                     const version = selected.label;
-                    await execAsync(`jabba use ${version}`);
-                    vscode.window.showInformationMessage(`Switched to Java version: ${version}`);
+                    
+                    // Set global version
+                    await execAsync(`jabba alias default ${version}`);
+                    
+                    // Set local version and update .jabbarc if workspace is open
+                    const workspaceFolders = vscode.workspace.workspaceFolders;
+                    if (workspaceFolders && workspaceFolders.length > 0) {
+                        const workspaceRoot = workspaceFolders[0].uri.fsPath;
+                        
+                        // Set local version
+                        await execAsync(`jabba use ${version}`, { cwd: workspaceRoot });
+                        
+                        // Update .jabbarc file
+                        const jabbarcPath = path.join(workspaceRoot, '.jabbarc');
+                        await fs.promises.writeFile(jabbarcPath, version);
+                        
+                        vscode.window.showInformationMessage(`Switched to Java version: ${version} (local and global) and updated .jabbarc`);
+                    } else {
+                        // Just set global version if no workspace is open
+                        await execAsync(`jabba use ${version}`);
+                        vscode.window.showInformationMessage(`Switched to Java version: ${version} (global)`);
+                    }
+                    
                     javaVersionProvider.refresh();
                 } catch (error) {
                     vscode.window.showErrorMessage(`Failed to switch version: ${error}`);
@@ -717,9 +797,21 @@ export async function activate(context: vscode.ExtensionContext) {
 
     let setGlobalVersion = vscode.commands.registerCommand('jabba-manager.setGlobalVersion', async (item: JavaVersionTreeItem) => {
         try {
+            const workspaceFolders = vscode.workspace.workspaceFolders;
+            
             // Using 'jabba alias default' to set the global version
             await execAsync(`jabba alias default ${item.version}`);
-            vscode.window.showInformationMessage(`Set global Java version to: ${item.version}`);
+            
+            // Update .jabbarc file if workspace is open
+            if (workspaceFolders && workspaceFolders.length > 0) {
+                const workspaceRoot = workspaceFolders[0].uri.fsPath;
+                const jabbarcPath = path.join(workspaceRoot, '.jabbarc');
+                await fs.promises.writeFile(jabbarcPath, item.version);
+                vscode.window.showInformationMessage(`Set global Java version to: ${item.version} and updated .jabbarc`);
+            } else {
+                vscode.window.showInformationMessage(`Set global Java version to: ${item.version}`);
+            }
+            
             javaVersionProvider.refresh();
         } catch (error) {
             vscode.window.showErrorMessage(`Failed to set global version: ${error}`);
