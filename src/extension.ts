@@ -94,13 +94,6 @@ class JavaVersionTreeItem extends vscode.TreeItem {
                 dark: vscode.Uri.file(path.join(extensionPath, 'images', 'commands', 'dark', 'java-version.svg'))
             };
         }
-
-        // Add command to set local version when item is clicked
-        this.command = {
-            command: 'jabba-manager.setLocalVersion',
-            title: 'Set Local Version',
-            arguments: [this]
-        };
     }
 }
 
@@ -544,9 +537,9 @@ async function setLocalJavaVersion(version: string): Promise<void> {
         // Also set as global default using jabba alias
         await execAsync(`jabba alias default ${version}`);
         
-        vscode.window.showInformationMessage(`Local and global Java version set to ${version} and .jabbarc updated.`);
+        vscode.window.showInformationMessage(`Jabba operation successful.`);
     } catch (error) {
-        vscode.window.showErrorMessage(`Failed to set Java version: ${error}`);
+        console.error('Error reading or applying .jabbarc version:', error);
     }
 }
 
@@ -583,8 +576,6 @@ async function readAndApplyJabbarcVersion(): Promise<void> {
         
         // Also set as global default using jabba alias
         await execAsync(`jabba alias default ${version}`);
-        
-        vscode.window.showInformationMessage(`Java version set to ${version} from .jabbarc file.`);
     } catch (error) {
         console.error('Error reading or applying .jabbarc version:', error);
     }
@@ -624,8 +615,6 @@ async function applyJavaVersion(version: string): Promise<void> {
             const jabbarcPath = path.join(workspaceRoot, '.jabbarc');
             await fs.promises.writeFile(jabbarcPath, version);
         }
-        
-        vscode.window.showInformationMessage(`Java version command executed: jabba use ${version}`);
     } catch (error) {
         console.error('Error applying Java version:', error);
         vscode.window.showErrorMessage(`Error applying Java version: ${error}`);
@@ -847,7 +836,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                 }
                             });
                             
-                            vscode.window.showInformationMessage(`Successfully installed ${displayVersion}`);
+                            vscode.window.showInformationMessage(`Jabba operation successful.`);
                             javaVersionProvider.refresh();
                         } catch (error) {
                             vscode.window.showErrorMessage(`Failed to install ${displayVersion}: ${error}`);
@@ -909,11 +898,11 @@ export async function activate(context: vscode.ExtensionContext) {
                         const jabbarcPath = path.join(workspaceRoot, '.jabbarc');
                         await fs.promises.writeFile(jabbarcPath, version);
                         
-                        vscode.window.showInformationMessage(`Switched to Java version: ${version} (local and global) and updated .jabbarc`);
+                        vscode.window.showInformationMessage(`Jabba operation successful.`);
                     } else {
                         // Just set global version if no workspace is open
                         await execAsync(`jabba use ${version}`);
-                        vscode.window.showInformationMessage(`Switched to Java version: ${version} (global)`);
+                        vscode.window.showInformationMessage(`Jabba operation successful.`);
                     }
                     
                     javaVersionProvider.refresh();
@@ -940,9 +929,9 @@ export async function activate(context: vscode.ExtensionContext) {
                 const workspaceRoot = workspaceFolders[0].uri.fsPath;
                 const jabbarcPath = path.join(workspaceRoot, '.jabbarc');
                 await fs.promises.writeFile(jabbarcPath, item.version);
-                vscode.window.showInformationMessage(`Set global Java version to: ${item.version} and updated .jabbarc`);
+                vscode.window.showInformationMessage(`Jabba operation successful.`);
             } else {
-                vscode.window.showInformationMessage(`Set global Java version to: ${item.version}`);
+                vscode.window.showInformationMessage(`Jabba operation successful.`);
             }
             
             javaVersionProvider.refresh();
@@ -970,7 +959,7 @@ export async function activate(context: vscode.ExtensionContext) {
             if (answer === 'Remove') {
                 // Using 'jabba uninstall' to remove a version
                 await execAsync(`jabba uninstall ${item.version}`);
-                vscode.window.showInformationMessage(`Uninstalled Java version: ${item.version}`);
+                vscode.window.showInformationMessage(`Jabba operation successful.`);
                 javaVersionProvider.refresh();
             }
         } catch (error) {
