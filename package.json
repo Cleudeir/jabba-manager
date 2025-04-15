@@ -2,7 +2,7 @@
   "name": "jabba-manager",
   "displayName": "jabba-manager",
   "description": "Manage Java versions using Jabba with a focus on OpenJDK",
-  "version": "1.0.33",
+  "version": "1.0.39",
   "publisher": "appstecbr",
   "repository": {
     "type": "git",
@@ -97,6 +97,22 @@
           "light": "images/commands/light/refresh.svg",
           "dark": "images/commands/dark/refresh.svg"
         }
+      },
+      {
+        "command": "jabba-manager.showApplyCommands",
+        "title": "Show Apply Java Version Commands",
+        "icon": {
+          "light": "images/commands/light/switch.svg",
+          "dark": "images/commands/dark/switch.svg"
+        }
+      },
+      {
+        "command": "jabba-manager.checkJavaVersion",
+        "title": "Check Java Version Match",
+        "icon": {
+          "light": "images/commands/light/refresh.svg",
+          "dark": "images/commands/dark/refresh.svg"
+        }
       }
     ],
     "menus": {
@@ -114,6 +130,11 @@
         },
         {
           "command": "jabba-manager.refreshVersions",
+          "when": "view == jabbaManagerView",
+          "group": "navigation"
+        },
+        {
+          "command": "jabba-manager.checkJavaVersion",
           "when": "view == jabbaManagerView",
           "group": "navigation"
         }

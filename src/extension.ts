@@ -590,6 +590,122 @@ async function readAndApplyJabbarcVersion(): Promise<void> {
     }
 }
 
+// Add a flag to prevent command loops
+let isApplyingJavaVersion = false;
+
+/**
+ * Applies Java version changes using the active terminal
+ */
+async function applyJavaVersion(version: string): Promise<void> {
+    if (isApplyingJavaVersion) {
+        console.log('Already applying Java version, skipping duplicate call');
+        return; // Prevent multiple simultaneous calls
+    }
+    
+    isApplyingJavaVersion = true;
+    
+    try {
+        // Get the active terminal or create one if none exists
+        let terminal = vscode.window.activeTerminal;
+        if (!terminal) {
+            terminal = vscode.window.createTerminal('Terminal');
+        }
+        
+        // Show the terminal and run the command
+        terminal.show();
+        
+        // Run only the specific jabba use command
+        terminal.sendText(`jabba use ${version}`);
+        
+        // Update .jabbarc file if workspace is open
+        const workspaceFolders = vscode.workspace.workspaceFolders;
+        if (workspaceFolders && workspaceFolders.length > 0) {
+            const workspaceRoot = workspaceFolders[0].uri.fsPath;
+            const jabbarcPath = path.join(workspaceRoot, '.jabbarc');
+            await fs.promises.writeFile(jabbarcPath, version);
+        }
+        
+        vscode.window.showInformationMessage(`Java version command executed: jabba use ${version}`);
+    } catch (error) {
+        console.error('Error applying Java version:', error);
+        vscode.window.showErrorMessage(`Error applying Java version: ${error}`);
+    } finally {
+        // Reset flag after a short delay
+        setTimeout(() => {
+            isApplyingJavaVersion = false;
+        }, 2000);
+    }
+}
+
+/**
+ * Checks if the current Java version in the terminal matches what's in .jabbarc
+ */
+async function checkJavaVersionMatch(): Promise<void> {
+    if (isApplyingJavaVersion) {
+        console.log('Skipping version check while applying a version');
+        return; // Skip check if already applying a version
+    }
+    
+    try {
+        // Get version from .jabbarc
+        const workspaceFolders = vscode.workspace.workspaceFolders;
+        if (!workspaceFolders || workspaceFolders.length === 0) {
+            return;
+        }
+
+        const workspaceRoot = workspaceFolders[0].uri.fsPath;
+        const jabbarcPath = path.join(workspaceRoot, '.jabbarc');
+        
+        if (!fs.existsSync(jabbarcPath)) {
+            return;
+        }
+        
+        const jabbarcContent = await fs.promises.readFile(jabbarcPath, 'utf8');
+        const expectedVersion = jabbarcContent.trim();
+        
+        if (!expectedVersion) {
+            return;
+        }
+        
+        // Get current Java version using java -version
+        try {
+            const result = await execAsync('java -version 2>&1');
+            const output = result.stdout || result.stderr || '';
+            
+            // Parse the version from the output
+            const versionMatch = output.match(/(?:version|openjdk)\s+"([^"]+)"/i);
+            if (!versionMatch) {
+                console.log('Could not parse Java version from output:', output);
+                return;
+            }
+            
+            const currentVersion = versionMatch[1];
+            console.log(`Current Java version: ${currentVersion}, Expected: ${expectedVersion}`);
+            
+            // Extract major version numbers to compare
+            const expectedMajor = expectedVersion.match(/(?:@1\.)?(\d+)/);
+            const currentMajor = currentVersion.match(/(\d+)/);
+            
+            if (!expectedMajor || !currentMajor) {
+                console.log('Could not extract major versions for comparison');
+                return;
+            }
+            
+            // If versions don't match, automatically fix it
+            if (expectedMajor[1] !== currentMajor[1]) {
+                console.log(`Version mismatch detected: current=${currentMajor[1]}, expected=${expectedMajor[1]}`);
+                
+                // Auto-apply the version change without asking
+                await applyJavaVersion(expectedVersion);
+            }
+        } catch (error) {
+            console.error('Error running java -version:', error);
+        }
+    } catch (error) {
+        console.error('Error checking Java version match:', error);
+    }
+}
+
 export async function activate(context: vscode.ExtensionContext) {
     // Check Jabba installation first
     const isJabbaInstalled = await checkJabbaInstallation();
@@ -600,8 +716,22 @@ export async function activate(context: vscode.ExtensionContext) {
     // Apply version from .jabbarc file if it exists on startup
     await readAndApplyJabbarcVersion();
     
+    // Check if Java version matches what's in .jabbarc
+    await checkJavaVersionMatch();
+    
     const javaVersionProvider = new JavaVersionProvider();
     vscode.window.registerTreeDataProvider('jabbaManagerView', javaVersionProvider);
+
+    // Add a status bar item that will show and apply commands
+    const javaVersionStatusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
+    javaVersionStatusBar.command = 'jabba-manager.showApplyCommands';
+    javaVersionStatusBar.text = '$(versions) Jabba';
+    javaVersionStatusBar.tooltip = 'Click to get commands to apply Jabba version from .jabbarc';
+    javaVersionStatusBar.show();
+    context.subscriptions.push(javaVersionStatusBar);
+
+    // Update status bar with current Java version
+    updateStatusBar(javaVersionStatusBar);
 
     // File watcher for project files and .jabbarc file
     const watcher = vscode.workspace.createFileSystemWatcher('**/{pom.xml,build.gradle,build.gradle.kts,.jabbarc}');
@@ -610,6 +740,8 @@ export async function activate(context: vscode.ExtensionContext) {
             // If .jabbarc changed, read and apply the version
             await readAndApplyJabbarcVersion();
             javaVersionProvider.refresh();
+            updateStatusBar(javaVersionStatusBar);
+            await checkJavaVersionMatch(); // Add check after .jabbarc changes
         } else {
             const config = vscode.workspace.getConfiguration('jabbaManager');
             if (config.get<boolean>('autoRecommend', true)) {
@@ -625,6 +757,7 @@ export async function activate(context: vscode.ExtensionContext) {
         if (uri.fsPath.endsWith('.jabbarc')) {
             await readAndApplyJabbarcVersion();
             javaVersionProvider.refresh();
+            updateStatusBar(javaVersionStatusBar);
         }
     });
 
@@ -845,6 +978,45 @@ export async function activate(context: vscode.ExtensionContext) {
         }
     });
 
+    // Modify the showApplyCommands to use the new function without timeout
+    let showApplyCommands = vscode.commands.registerCommand('jabba-manager.showApplyCommands', async () => {
+        try {
+            const workspaceFolders = vscode.workspace.workspaceFolders;
+            if (!workspaceFolders || workspaceFolders.length === 0) {
+                vscode.window.showErrorMessage('No workspace folder is open');
+                return;
+            }
+
+            const workspaceRoot = workspaceFolders[0].uri.fsPath;
+            const jabbarcPath = path.join(workspaceRoot, '.jabbarc');
+            
+            // Check if .jabbarc exists
+            if (!fs.existsSync(jabbarcPath)) {
+                vscode.window.showInformationMessage('No .jabbarc file found. Set a local version first.');
+                return;
+            }
+            
+            // Read the version from .jabbarc
+            const jabbarcContent = await fs.promises.readFile(jabbarcPath, 'utf8');
+            const version = jabbarcContent.trim();
+            
+            if (!version) {
+                vscode.window.showWarningMessage('The .jabbarc file is empty. Set a local version first.');
+                return;
+            }
+            
+            // Apply Java version without opening a terminal
+            await applyJavaVersion(version);
+        } catch (error) {
+            vscode.window.showErrorMessage(`Error applying Java version: ${error}`);
+        }
+    });
+
+    // Add command to manually check Java version
+    let checkJavaVersion = vscode.commands.registerCommand('jabba-manager.checkJavaVersion', async () => {
+        await checkJavaVersionMatch();
+    });
+
     context.subscriptions.push(
         watcher,
         recommendVersion,
@@ -853,8 +1025,52 @@ export async function activate(context: vscode.ExtensionContext) {
         switchJavaVersion,
         setGlobalVersion,
         uninstallVersion,
-        setLocalVersion
+        setLocalVersion,
+        showApplyCommands,
+        checkJavaVersion
     );
+}
+
+/**
+ * Updates the status bar with the current Java version
+ */
+async function updateStatusBar(statusBarItem: vscode.StatusBarItem): Promise<void> {
+    try {
+        const workspaceFolders = vscode.workspace.workspaceFolders;
+        if (!workspaceFolders || workspaceFolders.length === 0) {
+            statusBarItem.text = '$(versions) Jabba';
+            statusBarItem.tooltip = 'Jabba Java Version Manager';
+            return;
+        }
+
+        const workspaceRoot = workspaceFolders[0].uri.fsPath;
+        const jabbarcPath = path.join(workspaceRoot, '.jabbarc');
+        
+        // Check if .jabbarc exists
+        if (!fs.existsSync(jabbarcPath)) {
+            statusBarItem.text = '$(versions) Jabba';
+            statusBarItem.tooltip = 'No local Java version set';
+            return;
+        }
+        
+        // Read the version from .jabbarc
+        const jabbarcContent = await fs.promises.readFile(jabbarcPath, 'utf8');
+        const version = jabbarcContent.trim();
+        
+        if (!version) {
+            statusBarItem.text = '$(versions) Jabba';
+            statusBarItem.tooltip = 'Empty .jabbarc file';
+            return;
+        }
+        
+        // Update status bar
+        statusBarItem.text = `$(versions) ${version}`;
+        statusBarItem.tooltip = `Local Java version: ${version} (Click to apply)`;
+    } catch (error) {
+        console.error('Error updating status bar:', error);
+        statusBarItem.text = '$(versions) Jabba';
+        statusBarItem.tooltip = 'Error reading Java version';
+    }
 }
 
 export function deactivate() {}
